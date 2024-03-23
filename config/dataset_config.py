@@ -22,12 +22,12 @@ dataset_config = {
     'N-MNIST': {
         'train_csv': "N-MNIST_train.csv",
         'test_csv': "N-MNIST_test.csv",
-        'root': '/data/Datasets/Event-Based/N-MNIST/'
+        'root': '../Datasets/Event-Based/N-MNIST/'
     },
     'N-Cars': {
         'train_csv': 'Prophesee_Dataset_n_cars_n-cars_train.csv',
         'test_csv': 'Prophesee_Dataset_n_cars_n-cars_test.csv',
-        'root': '/data/Datasets/Event-Based/N-Cars/Prophesee_Dataset_n_cars'
+        'root': '../Datasets/Event-Based/N-Cars/Prophesee_Dataset_n_cars'
     },
     'N-Caltech101': {
         'train_csv': 'Caltech101_train_2.csv',

@@ -107,9 +107,9 @@ Finally, generate a CSV file for the DVS-Gesture dataset with `gen_dataset_csv.p
 
 ## Adding Custom Datasets
 
-To integrate a custom dataset into this project, follow these steps:
+To integrate a custom dataset into this framework, follow these steps for seamless integration and usage:
 
-1. **Prepare Your Dataset**: Ensure your dataset is organized in a format compatible with the existing data loaders available in `scripts/data_processing/`. The dataset should be structured into directories or files that separate training, validation, and testing samples, as applicable.
+1. **Prepare Your Dataset**: Ensure your dataset is organized in a format that is compatible with existing data loaders, or create a new data loader script within `scripts/datasets`.
 
 2. **Create a Dataset Object**: Implement a new Python class for your dataset by inheriting from the `EventsDataset` class found in `scripts/datasets/Dataset.py`. In this class, you'll need to:
    - Call the `EventsDataset` initializer in your class's `__init__` method and pass the required parameters such as `csv_file`, `root_dir`, `event_rep`, `channels`, etc.
@@ -150,11 +150,17 @@ To integrate a custom dataset into this project, follow these steps:
            event_frame = generate_event_representation(events_dict, self.width, self.height, delta_t=self.delta_t, representation=self.event_rep, channels=self.channels)
            return event_frame
 
-3. **Add Dataset Configuration**: Define your custom dataset's configuration in config/dataset_config.py. This includes specifying paths, and any other relevant settings such as the desired spatial augmentation parameters. Initially, add the dataset's paths to the `dataset_config` dict, then add the dataset's name and object (created in step 2) to the `dataset_functions` dict.
+3. **Add Dataset Configuration**:
+    - In `config/dataset_config.py`, specify your dataset's configurations including paths (`root`, `train_csv`, `test_csv`) and any other relevant settings like spatial augmentation parameters.
+    - Add your dataset's paths to the `dataset_config` dictionary.
+    - Then, register your dataset object (created in step 2) by adding its name and reference to the `dataset_functions` dictionary.
+      
+5. **Generate CSV Files**: Utilize the gen_dataset_csv.py script to generate CSV files that map your dataset's samples to their corresponding labels and splits, if applicable. This step is crucial for enabling the loading and processing of the custom dataset during training and evaluation.
 
-4. **Generate CSV Files**: Utilize the gen_dataset_csv.py script to generate CSV files that map your dataset's samples to their corresponding labels and splits, if applicable. This step is crucial for enabling the loading and processing of the custom dataset during training and evaluation.
+6. **Update and Run train.py Script**: Modify this script to use your custom dataset as an argument by setting the configuration's object `dataset` parameter to your dataset's name.
 
-5. **Update and Run train.py Script**: Modify this script to use your custom dataset as an argument by setting the configuration's object `dataset` parameter to your dataset's name.
+By following these steps, your custom dataset will be fully integrated into the existing framework, allowing for its utilization in training and evaluation processes alongside the supported datasets.
+
 
 ## Configuration
 

@@ -1,8 +1,11 @@
 """
+Python script to read event data encoded in .aedat format, developed by Zaid El Shair.
+
+The implementation of this script is based on the AEDAT format details provided in DVS-Gesture dataset's readme file.
+
 Note: This assumes that timestamps have no offset.
 Timestamps are read using an unsigned 32-bit integers cover up to 4295 seconds (1:11 Hours) if offset is removed.
 Otherwise, might overflow and cause wrong results.
-
 """
 import struct
 import numpy as np

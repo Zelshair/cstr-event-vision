@@ -1,5 +1,5 @@
 '''
-Python version of the matlab function dat2mat.m for reading CIFAR10-DVS dataset
+Python version of the matlab function dat2mat.m for reading CIFAR10-DVS dataset, developed by Zaid El Shair.
 
 Event data files are binary files (.aedat) with the following format:
 'UPDATE    Each example is a separate binary file consisting of a list of events. Each event occupies 40 bits arranged as described below:

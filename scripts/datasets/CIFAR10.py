@@ -1,11 +1,7 @@
-# from scripts.data_processing.dat2mat import dat2mat
-# from scripts.data_processing.process_events import generate_event_representation, preprocess_events_list
 import os
-# from scripts.datasets.Dataset import EventsDataset
 from scripts.datasets.Dataset import *
 from scripts.data_processing import *
 
-# import cv2
 
 class CIFAR10DVS(EventsDataset):
     def __init__(self, 
@@ -54,14 +50,13 @@ class CIFAR10DVS(EventsDataset):
         events_file_path = os.path.join(self.root_dir, events_path)
 
         # read events and rotate events by 90 degrees CW
-        events_dict = dat2mat(events_file_path, rotate90=True) # possibly replace with .txt events file parser
-        # events_list = open(events_file_path, 'r').readlines()
+        events_dict = dat2mat(events_file_path, rotate90=True)
 
         if self.split == 'train':
             # apply polarity or temporal augmentation if enabled
             self.apply_events_augmentation(events_dict)
 
-        # convert to desired representation (check prior codes)
+        # convert to desired representation
         event_frame = generate_event_representation(events_dict, self.width, self.height, delta_t=self.delta_t, representation=self.event_rep, channels=self.channels)
 
         # fix frame rotation

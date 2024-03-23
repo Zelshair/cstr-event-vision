@@ -1,9 +1,8 @@
 '''
-Python version of the matlab function load_atis_data.m for reading Prophesee's N-Cars dataset
+Python version of the matlab function load_atis_data.m for reading Prophesee's N-Cars dataset, developed by Zaid El Shair.
 
 Event data files are binary files (.data) with the following format:
 Each example is a separate binary file consisting of a list of events. First 3 lines contain the header. Afterwards 4 bytes of time data, 4 bytes of address data (x,y,p):
-
 
 '''
 

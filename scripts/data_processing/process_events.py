@@ -1,26 +1,5 @@
-import numpy as np
 import bisect
-# from scripts.data_processing.representations import *
 from config.representations_config import representations
-
-# # Define Event Representation Functions here
-# representations = {
-#     'cstr' : cstr,
-#     'cstr-mean' : cstr_mean_timestamps,
-#     'bin_event_frame' : bin_event_frame,
-#     'pol_event_frame' : pol_event_frame,
-#     'bin_event_count' : bin_event_count,
-#     'pol_event_count' : pol_event_count,
-#     'timestamp_img' : timestamp_img,
-#     'timestamp_img-count' : timestamp_img_count,
-#     'median' : median,
-#     'medIQRcount' : medIQRcount,
-#     'medcount' : medcount,
-#     'meanSTDcount' : meanSTDcount,
-
-#     # Add other event representations function definitions here as needed
-# }
-
 
 def generate_event_representation(events_dict, width, height, delta_t=0, representation ='cstr', channels = 3, polarity_mode = 'binary'):
     """

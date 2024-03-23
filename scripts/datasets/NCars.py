@@ -49,14 +49,12 @@ class NCars(EventsDataset):
         events_file_path = os.path.join(self.root_dir, events_path)
 
         # read events
-        events_dict = load_atis_data(events_file_path) # possibly replace with .txt events file parser
-        # events_list = open(events_file_path, 'r').readlines()
-
+        events_dict = load_atis_data(events_file_path)
         if self.split == 'train':
             # apply polarity or temporal augmentation if enabled
             self.apply_events_augmentation(events_dict)
 
-        # convert to desired representation (check prior codes)
+        # convert to desired representation
         event_frame = generate_event_representation(events_dict, self.width, self.height, self.delta_t, representation=self.event_rep, channels=self.channels)
 
         return event_frame

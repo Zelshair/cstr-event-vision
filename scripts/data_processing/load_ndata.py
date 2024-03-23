@@ -1,5 +1,5 @@
 '''
-Python version of the matlab function Read_Ndataset.m for reading N-MNIST and N-Caltech
+Python version of the matlab function Read_Ndataset.m for reading N-MNIST and N-Caltech, developed by Zaid El Shair.
 
 Event data files are binary files (.bin) with the following format:
 Each example is a separate binary file consisting of a list of events. Each event occupies 40 bits arranged as described below:
@@ -25,10 +25,6 @@ def read_ndataset(filename, polarity_mode="binary"):
     with open(filename, "rb") as f:
         # read event stream file into a numpy array of uint8
         evt_stream = np.fromfile(f, dtype=np.uint8)
-
-    # create a numpy array for the event data
-    # n_events = len(evt_stream) // 5
-    # TD = np.empty(n_events, dtype=[('x', np.uint8), ('y', np.uint8), ('p', np.uint8), ('ts', np.uint32)])
 
     # create a dict for the event data
     TD = {}    

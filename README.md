@@ -78,40 +78,106 @@ python benchmark.py
 Ensure to configure benchmark.py with the desired models, datasets, and training parameters using the function `benchmark_main()`. This script will train each model according to the specified configurations, evaluate them, and cache the data to accelerate the training process.
 
 ## Supported Datasets
-This project supports the following event-based datasets out of the box:
+This project supports various event-based datasets for both object and action recognition. Below are the supported datasets along with their download links:
 
 ### Object Recognition:
-1. **N-MNIST** (link: https://www.garrickorchard.com/datasets/n-mnist)
-2. **N-Cars** (link: https://www.prophesee.ai/2018/03/13/dataset-n-cars/)
-3. **N-Caltech101** (link: https://www.garrickorchard.com/datasets/n-caltech101)
-4. **CIFAR10-DVS** (link: https://figshare.com/articles/dataset/CIFAR10-DVS_New/4724671/2?file=7713487)
+1. **N-MNIST**: [Dataset Link](https://www.garrickorchard.com/datasets/n-mnist)
+2. **N-Cars**: [Dataset Link](https://www.prophesee.ai/2018/03/13/dataset-n-cars/)
+3. **N-Caltech101**: [Dataset Link](https://www.garrickorchard.com/datasets/n-caltech101)
+4. **CIFAR10-DVS**: [Dataset Link](https://figshare.com/articles/dataset/CIFAR10-DVS_New/4724671/2?file=7713487)
 
 ### Action Recognition:
-1. **ASL-DVS** (link: https://github.com/PIX2NVS/NVS2Graph)
-2. **DVS-Gesture** (link: https://research.ibm.com/publications/a-low-power-fully-event-based-gesture-recognition-system)
+1. **ASL-DVS**: [Dataset Link](https://github.com/PIX2NVS/NVS2Graph)
+2. **DVS-Gesture**: [Dataset Link](https://research.ibm.com/publications/a-low-power-fully-event-based-gesture-recognition-system)
 
-To use these datasets, use the links above to download them, then move to a Dataset/ directory. In this source code, the datasets are placed in the relative directory `../Datasets/` as shown in `config/dataset_config.py`. A .csv file is required to properly load a dataset for both the `train` and `test` splits. These can be generated using `gen_dataset_csv.py` script, where the script is run from the command line, accepting arguments to specify the dataset path, name, and other options related to data splits and output formatting.
+To use these datasets, download them using the provided links and place them in a known directory. The expected directory structure and additional configuration details can be found in `config/dataset_config.py`. In this configuration, the datasets are placed in the relative directory `../Datasets/` as shown in `config/dataset_config.py`. Then, a CSV file is required to properly load each dataset's `train` and `test` splits. These can be generated using `gen_dataset_csv.py` script, where the script is run from the command line, accepting arguments to specify the dataset path, name, and other options related to data splits and output formatting.
 
 Example command:
 ```
 python gen_dataset_csv.py --dataset_path /path/to/dataset --dataset_name MyDataset --data_split
 ```
-Alternatively, for the supported datasets above, we provide each dataset's CSV file used to generate the results in our paper in the CSVs folder. Copy each dataset's CSV files to the root of the dataset folder (indicated by each dataset's `root` parameter in `dataset_config.py`). Each dataset sample file must be available at the relative path indicated in these CSV files for each split. 
 
-Note, when using the DVS-Gesture dataset, it must be initially processed by running:
-1. split_dvs_gesture_seqs.py
-2. split_seqs_to_samples.py
+For convenience, we provide pre-generated CSV files for train and test splits of these datasets in the `dataset_splits` folder. These CSV files are used to load the datasets correctly and were utilized to generate the results presented in our publication. Simply copy the relevant CSV files into the root directory of each dataset.
 
-Then, you can generate a CSV file for this dataset using the `gen_dataset_csv.py` script as described above.
+If you're using the DVS-Gesture dataset, initial processing is required with the following scripts:
+1. `split_dvs_gesture_seqs.py` to split the recorded event sequences into sub-sequences per gesture.
+2. `split_seqs_to_samples.py` to further split these sub-sequences into fixed-duration samples.
 
-Otherwise, to use the provided dataset CSV, step 2 must be run with the following parameters of  `window size = 500 ms` and `step size = 250 ms`.
+Finally, generate a CSV file for the DVS-Gesture dataset with `gen_dataset_csv.py`, or directly use the provided CSV files for this dataset by following the instructions above where step 2 must be run with the following parameters of `window size = 500 ms` and `step size = 250 ms`.
 
 ## Adding Custom Datasets
-To add a custom dataset, follow these steps:
-1. Prepare your dataset in a format compatible with the existing data loaders or create a new data loader script in scripts/datasets.
-2. Add your dataset configuration in config/dataset_config.py. This includes paths, normalization parameters, and any other relevant settings.
-3. Use gen_dataset_csv.py to generate CSV files that map your dataset's samples to their corresponding labels and splits (if applicable).
-4. Modify train.py and evaluate.py scripts to accept your dataset as an argument or configure it directly in config/config.py.
+
+To integrate a custom dataset into this project, follow these steps:
+
+1. **Prepare Your Dataset**: Ensure your dataset is organized in a format compatible with the existing data loaders available in `scripts/data_processing/`. The dataset should be structured into directories or files that separate training, validation, and testing samples, as applicable.
+
+2. **Create a Dataset Object**: Implement a new Python class for your dataset by inheriting from the `EventsDataset` class found in `scripts/datasets/Dataset.py`. In this class, you'll need to:
+   - Call the `EventsDataset` initializer in your class's `__init__` method and pass the required parameters such as `csv_file`, `root_dir`, `event_rep`, `channels`, etc.
+   - Define dataset-specific attributes such as `dataset_name`, `height`, `width`, `num_classes`, and `classes` (a list of class names).
+   - Implement the `get_event_frame()` method to specify how a dataset's sample is read. This involves loading event data from files (based on the dataset's format) and converting it to the desired event representation format. Utilize appropriate data loading scripts from `scripts/data_processing/` based on your dataset's file format.
+
+   For example, here's a template based on the `CIFAR10.py` dataset class:
+
+   ```python
+   from scripts.datasets.Dataset import EventsDataset
+   from scripts.data_processing.load_atis_data import dat2mat # Or any other relevant loading script
+   from scripts.data_processing.process_events import generate_event_representation
+
+   class MyCustomDataset(EventsDataset):
+       def __init__(self, csv_file, root_dir, event_rep='cstr', channels=1, split='train', delta_t=0, cache_dataset=False, transform=None, keep_size=False, frame_size=(128, 128), cache_transforms=False, augmentation_config=None, use_mp=True):
+           super().__init__(csv_file, root_dir, event_rep, channels, split, delta_t, cache_dataset, transform, keep_size, frame_size, cache_transforms, augmentation_config, use_mp)
+           
+           self.dataset_name = 'MyCustomDataset'
+           self.height = 128  # Original data's frame dimensions
+           self.width = 128
+           self.num_classes = 10  # Number of classes
+           self.classes = ['class1', 'class2', ...]  # Label of each class
+           
+           assert len(self.classes) == self.num_classes
+           self.class_index = self.dataset_data['class_index']
+
+           if self.cache_dataset:
+               self.cache_data()
+
+       def get_event_frame(self, index):
+           events_path = self.dataset_data['events_file_path'][index]
+           events_file_path = os.path.join(self.root_dir, events_path)
+           
+           events_dict = dat2mat(events_file_path)  # Modify based on your dataset format
+           if self.split == 'train':
+               self.apply_events_augmentation(events_dict)
+
+           event_frame = generate_event_representation(events_dict, self.width, self.height, delta_t=self.delta_t, representation=self.event_rep, channels=self.channels)
+           return event_frame
+
+3. **Add Dataset Configuration**: Define your custom dataset's configuration in config/dataset_config.py. This includes specifying paths, and any other relevant settings such as the desired spatial augmentation parameters. Initially, add the dataset's paths to the `dataset_config` dict, then add the dataset's name and object (created in step 2) to the `dataset_functions` dict.
+
+4. **Generate CSV Files**: Utilize the gen_dataset_csv.py script to generate CSV files that map your dataset's samples to their corresponding labels and splits, if applicable. This step is crucial for enabling the loading and processing of the custom dataset during training and evaluation.
+
+5. **Update and Run train.py Script**: Modify this script to use your custom dataset as an argument by setting the configuration's object `dataset` parameter to your dataset's name.
+
+## Configuration
+
+The `config.py` script plays a critical role in the training and evaluation processes by allowing users to customize various aspects of model training, evaluation, and data processing. 
+
+### Key Configuration Options
+
+- **Dataset and Event Representation**: Specify the dataset (`dataset`), event representation method (`event_rep`), and the number of input channels (`channels`).
+- **Model Architecture and Pretraining**: Choose the classification model (`classifier`) and whether to use pre-trained weights (`pretrained_classifier`).
+- **Data Preprocessing**: Set the batch size (`batch_size`), frame size for event data (`frame_size`), and whether to keep the original dataset size (`keep_size`).
+- **Normalization and Augmentation**: Configure normalization parameters (`normalization`) and augmentation settings (`augmentation_config`).
+- **Data Caching**: Enable caching for the training dataset (including both training and validation splits) and their transformations (`cache_dataset`, `cache_transforms`) to accelerate the training and evaluation process, with an option to cache the test set as well (`cache_test_set = True`). This approach is particularly useful when training multiple networks on the same dataset.
+  - **Note**: Caching leverages local storage (`CACHE_TO_DISK` flag) by storing processed event samples as files, which can significantly speed up data loading, especially for large datasets and when using multiple CPU cores, by reducing interprocess communication overhead. Ensure sufficient disk space is available for caching, as it requires temporary storage that will be cleared post-process. If disk space is a concern, consider disabling `CACHE_TO_DISK` to avoid using storage, though this may slow down the process due to increased interprocess communication.
+
+
+- **Output Management**: Define paths for saving results (`save_results`), models, and other outputs.
+- **Computation Device**: Automatically selects the computation device based on CUDA availability (`DEVICE`).
+
+Additional configurable parameters include training hyperparameters like learning rate, number of epochs, early stopping threshold, and more. Users can also specify paths for output directories such as models, checkpoints, and training history.
+
+### Customizing Configurations
+
+To customize the training and evaluation process, edit the relevant attributes in the `Configs` class within `config.py`. This script provides a centralized and structured way to manage all settings related to the training environment, model specifications, and data handling strategies.
 
 
 
@@ -130,10 +196,10 @@ If you find our work useful in your research or use this code in an academic con
 }
 ```
 
-
+***
 Additionally, if you use any of the supported datasets, please cite their corresponding publications as listed below:
 
-**ASL-DVS**:
+- **ASL-DVS**:
 ```
 @inproceedings{bi2019graph,
 title={Graph-based Object Classification for Neuromorphic Vision Sensing},
@@ -143,7 +209,7 @@ year={2019},
 organization={IEEE}
 }
 ```
-**CIFAR10-DVS**:
+- **CIFAR10-DVS**:
 ```
 @article{li2017cifar10,
   title={Cifar10-dvs: an event-stream dataset for object classification},
@@ -158,7 +224,7 @@ organization={IEEE}
 }
 ```
 
-**DVS-Gesture**:
+- **DVS-Gesture**:
 ```
 @inproceedings{amir2017low,
   title={A low power, fully event-based gesture recognition system},
@@ -169,7 +235,7 @@ organization={IEEE}
 }
 ```
 
-**N-Caltech101** or **N-MNIST**:
+- **N-Caltech101** or **N-MNIST**:
 ```
 @article{orchard2015converting,
   title={Converting static image datasets to spiking neuromorphic datasets using saccades},
@@ -182,7 +248,7 @@ organization={IEEE}
 }
 ```
 
-**N-Cars**:
+- **N-Cars**:
 ```
 @inproceedings{sironi2018hats,
   title={HATS: Histograms of averaged time surfaces for robust event-based object classification},

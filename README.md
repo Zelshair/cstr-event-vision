@@ -77,6 +77,45 @@ python benchmark.py
 ```
 Ensure to configure benchmark.py with the desired models, datasets, and training parameters using the function `benchmark_main()`. This script will train each model according to the specified configurations, evaluate them, and cache the data to accelerate the training process.
 
+## Supported Representations
+This project implements several image-like event representations, including **CSTR** as detailed in our publication, "_CSTR: A Compact Spatio-Temporal Representation for Event-Based Vision._" Currently supported representations include:
+
+* **CSTR** (Compact Spatio-Temporal Representation): Reports the average timestamp of the events at each pixel, based on polarity, and the normalized number of events at each pixel.
+* **CSTR mean timestamps only****: Reports the average timestamp of the events at each pixel.
+* **Binary Event Frame**: Indicates the occurrence of an event at a location, disregarding its polarity.
+* **Polarized Event Frame**: Similar to Binary Event Frame but based on the polarity of events.
+* **Binary Event Count**: Counts the number of events occurring at each pixel location.
+* **Polarized Event Count**: Similar to Binary Event Count but based on the polarity of events.
+* **Timestamp Image**: Reports the most recent timestamp of events at each pixel, based on polarity, and the normalized number of events at each pixel.
+* **Timestamp Image & Count**: Reports the most recent timestamp of events at each pixel, based on polarity, and the normalized number of events at each pixel.
+
+The implementation of these representations can be found in `scripts/data_processing/representations.py`. Each representation's function requires that the events be provided in a `dict` format with a key per event component (`["x", "y", "p", "ts"]`). Additional representations such as Median, Median with Interquartile Range Count, and others are also implemented as detailed in `config/representations_config.py` and defined in `scripts/data_processing/representations.py`.
+
+## Adding New Representations
+To add a new event representation:
+1. Implement Representation Function: Create a function in `scripts/data_processing/representations.py` that processes an event dictionary and generates the desired representation. Ensure your function accepts an `events_dict` parameter and any other relevant parameters for your representation.
+
+2. Register Representation: Add your new representation method to config/representations_config.py by including an entry in the representations dictionary. Map your representation's name to the corresponding function you implemented in step 1.
+
+Example for adding a new representation named "example_representation":
+
+* In `representations.py`:
+  
+   ```
+   def example_representation(events_dict, delta_t, height, width, channels):
+       # Implementation of your representation
+       return event_rep
+   ```
+* In `representations_config.py`:
+
+   ```
+   representations = {
+       ...,
+       'example_representation': example_representation,
+       ...
+   }
+   ```
+
 ## Supported Datasets
 This project supports various event-based datasets for both object and action recognition. Below are the supported datasets along with their download links:
 

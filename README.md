@@ -116,6 +116,8 @@ Example for adding a new representation named "example_representation":
    }
    ```
 
+By following these steps, you can easily extend the framework to support other event-based vision representations that suit your research or application needs.
+
 ## Supported Datasets
 This project supports various event-based datasets for both object and action recognition. Below are the supported datasets along with their download links:
 
